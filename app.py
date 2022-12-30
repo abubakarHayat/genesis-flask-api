@@ -9,6 +9,9 @@ from apis.blockscan import Blockscan
 from apis.median import MedianBalance
 from apis.balance import Balance
 from apis.balance_list import BalanceList
+from apis.add_block import BlockAdd
+from apis.blocks import Blocks
+from apis.longest_chain import LongestChain
 
 from mongoengine import connect
 from dotenv import load_dotenv
@@ -20,11 +23,13 @@ api = Api(app)
 
 connect('flask', host=os.getenv('MONGO_URI'))
 
-
 api.add_resource(Blockscan, '/blockscan')
+api.add_resource(BlockAdd, '/addBlock')
+api.add_resource(Blocks, '/getAllChains')
 api.add_resource(BalanceList, '/getAllBalances')
 api.add_resource(Balance, '/getBalance/<string:address>')
 api.add_resource(MedianBalance, '/getMedian')
+api.add_resource(LongestChain, '/getLongestChain')
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(port=3000, debug=True)

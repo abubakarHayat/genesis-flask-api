@@ -2,6 +2,9 @@
 Utility functions
 '''
 import math
+from models.block import Block
+from mongoengine.queryset import QuerySet
+import json
 
 def calc_median(genesis_block):
     '''
@@ -34,3 +37,18 @@ def is_invalid_address(keys, address):
     if address not in keys:
         return True
     return False
+
+def ordered(obj):
+    if isinstance(obj, dict):
+        return sorted((k, ordered(v)) for k, v in obj.items())
+    if isinstance(obj, list):
+        return sorted(ordered(x) for x in obj)
+    else:
+        return obj
+
+
+def get_all_blocks():
+    block = Block.switch_collection(Block(),'addblock')
+    new_block = QuerySet(Block ,block._get_collection())
+    blk = new_block.all().to_json()
+    return json.loads(blk)
