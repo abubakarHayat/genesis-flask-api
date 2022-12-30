@@ -8,7 +8,7 @@ import os
 import json
 
 class BlockAdd(Resource):
-    def get(self):
+    def post(self):
         try:
             BLOCK_FILE_PATH = os.path.abspath('./block_store/blocks.json')
             with open(BLOCK_FILE_PATH) as f:
