@@ -48,7 +48,7 @@ class BlockAdd(Resource):
                 gen_block.save()
             elif block_to_add["number"] > 6:
                 longest_chain = get_longest_chain()
-                balance_block = longest_chain[block_to_add["number"] - 7]
+                balance_block = longest_chain[block_to_add["number"] - 6]
                 genesis_doc = Block.objects.first()
                 genesis_block = genesis_doc.to_mongo().to_dict()
                 updated_balances = update_balances(genesis_block['balances'], balance_block)
