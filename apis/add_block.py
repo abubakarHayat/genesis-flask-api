@@ -52,7 +52,12 @@ class BlockAdd(Resource):
                 genesis_doc = Block.objects.first()
                 genesis_block = genesis_doc.to_mongo().to_dict()
                 updated_balances = update_balances(genesis_block['balances'], balance_block)
-                genesis_doc.update(balances=updated_balances)
+                genesis_doc.update(
+                    balances=updated_balances,
+                    hash=balance_block["hash"],
+                    prevhash=balance_block["prevhash"],
+                    number=balance_block["number"],
+                    )
                 genesis_doc.save()
 
             return { "status": "Success" }

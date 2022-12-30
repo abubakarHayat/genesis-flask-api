@@ -12,6 +12,7 @@ from apis.balance_list import BalanceList
 from apis.add_block import BlockAdd
 from apis.blocks import Blocks
 from apis.longest_chain import LongestChain
+from flask_cors import CORS
 
 from mongoengine import connect
 from dotenv import load_dotenv
@@ -19,10 +20,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+cors = CORS(app)
 api = Api(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 connect('flask', host=os.getenv('MONGO_URI'))
-
 api.add_resource(Blockscan, '/blockscan')
 api.add_resource(BlockAdd, '/addBlock')
 api.add_resource(Blocks, '/getAllChains')
