@@ -14,10 +14,10 @@ class Middleware:
         self.longestChainHash = None
 
     def process_block(self, block):
-        """Process a new block that has been added to the blockchain.
+        '''Process a new block that has been added to the blockchain.
             Checks if with more than current height is added so add its new height
             else makes side chains
-        """
+        '''
         # key -> (blockNumber, blockHash)
         # value -> block
         self.sideNodes[(block['number'], block['hash'])] = block
@@ -77,7 +77,7 @@ class Middleware:
         return toReturn
 
     def update_height(self, block):
-        """Update the cached view with the current account balances."""
+        '''Update the cached view with the current account balances.'''
         self.cached_view = sorted(self.account_balances.values())
 
     def print_side_chain(self):
@@ -85,7 +85,7 @@ class Middleware:
             print(f"{key}: {value}\n")
 
     def calculate_median(self):
-        """Calculate and return the median of the current account balances."""
+        '''Calculate and return the median of the current account balances.'''
         if len(self.cached_view) % 2 == 0:
             # If there is an even number of account balances, return the average of the two middle values
             return (self.cached_view[len(self.cached_view) // 2 - 1] + self.cached_view[len(self.cached_view) // 2]) / 2

@@ -3,7 +3,7 @@ Schema module for MongoDB Block document
 '''
 from mongoengine import Document, DictField, IntField, ListField
 
-class Block(Document):
+class Blockbalance(Document):
     '''
     Block Schema structure
     '''

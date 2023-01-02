@@ -2,9 +2,10 @@
 Utility functions
 '''
 import math
-from models.block import Block
-from mongoengine.queryset import QuerySet
 import json
+from mongoengine.queryset import QuerySet
+from models.block import Blockbalance
+
 
 def calc_median(genesis_block):
     '''
@@ -21,6 +22,9 @@ def calc_median(genesis_block):
     return int((balances[mid][1] + balances[mid][1])/2)
 
 def update_balances(balances, args):
+    '''
+    Updates 'balances' according to provides 'args'
+    '''
     for transaction in args['transfers']:
         sender = transaction['sender']
         receiver = transaction['receiver']
@@ -34,21 +38,34 @@ def update_balances(balances, args):
     return balances
 
 def is_invalid_address(keys, address):
+    '''
+    Checks if a wallet address is invalid
+    '''
     if address not in keys:
         return True
     return False
 
-def ordered(obj):
-    if isinstance(obj, dict):
-        return sorted((k, ordered(v)) for k, v in obj.items())
-    if isinstance(obj, list):
-        return sorted(ordered(x) for x in obj)
-    else:
-        return obj
-
-
 def get_all_blocks():
-    block = Block.switch_collection(Block(),'addblock')
-    new_block = QuerySet(Block ,block._get_collection())
+    '''
+    Gets all blocks from 'blocklists' collection
+    '''
+    block = Blockbalance.switch_collection(Blockbalance(),'blocklists')
+    new_block = QuerySet(Blockbalance ,block._get_collection())
     blk = new_block.all().to_json()
     return json.loads(blk)
+
+def get_block_to_add(block_to_add, INDEX):
+    if INDEX == 0:
+        return Blockbalance(
+            hash= block_to_add["hash"],
+            number= block_to_add["number"],
+            prevhash= block_to_add["prevhash"],
+            balances=block_to_add["balances"]
+        )
+
+    return Blockbalance(
+        hash= block_to_add["hash"],
+        transfers= block_to_add["transfers"],
+        number= block_to_add["number"],
+        prevhash= block_to_add["prevhash"],
+    )

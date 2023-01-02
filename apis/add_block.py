@@ -1,45 +1,37 @@
-from flask_restful import Resource, abort
-from mongoengine.queryset import QuerySet
-from models.block import Block
-from utils.longestChain import get_longest_chain
-from utils.utility import update_balances
-
+'''
+Addition of block in blocklists collection
+'''
 import os
 import json
+from flask_restful import Resource, abort
+from mongoengine.queryset import QuerySet
+from models.block import Blockbalance
+from utils.longestChain import get_longest_chain
+from utils.utility import update_balances
+from utils.utility import get_block_to_add
 
 class BlockAdd(Resource):
+    '''
+    addBlock API
+    '''
     def post(self):
         try:
+            NUM_OF_PENDING_BLOCKS = 6
             BLOCK_FILE_PATH = os.path.abspath('./block_store/blocks.json')
-            with open(BLOCK_FILE_PATH) as f:
-                blocks = json.loads(f.read())
+            with open(BLOCK_FILE_PATH) as file:
+                blocks = json.loads(file.read())
 
-            block = Block.switch_collection(Block(),'addblock')
-            new_block = QuerySet(Block ,block._get_collection())
+            block = Blockbalance.switch_collection(Blockbalance(),'blocklists')
+            new_block = QuerySet(Blockbalance, block._get_collection())
             INDEX = new_block.all().count()
-
             block_to_add = blocks[INDEX]
-
-            if INDEX == 0:
-                blk = Block(
-                    hash= block_to_add["hash"],
-                    number= block_to_add["number"],
-                    prevhash= block_to_add["prevhash"],
-                    balances=block_to_add["balances"]
-                )
-            else:
-                blk = Block(
-                    hash= block_to_add["hash"],
-                    transfers= block_to_add["transfers"],
-                    number= block_to_add["number"],
-                    prevhash= block_to_add["prevhash"],
-                )
-            blk.switch_collection('addblock')
-
+            blk = get_block_to_add(block_to_add, INDEX)
+            blk.switch_collection('blocklists')
             blk.save()
+
             if block_to_add["number"] == 0:
-                # add genesis block to 'block' collection
-                gen_block = Block(
+                # add genesis Blockbalance to 'Blockbalance' collection
+                gen_block = Blockbalance(
                                 hash= block_to_add["hash"],
                                 number= block_to_add["number"],
                                 prevhash= block_to_add["prevhash"],
@@ -48,10 +40,13 @@ class BlockAdd(Resource):
                 gen_block.save()
             elif block_to_add["number"] > 6:
                 longest_chain = get_longest_chain()
-                balance_block = longest_chain[block_to_add["number"] - 6]
-                genesis_doc = Block.objects.first()
+                balance_block = longest_chain[block_to_add["number"] - NUM_OF_PENDING_BLOCKS]
+                # get genesis block
+                genesis_doc = Blockbalance.objects.first()
+                # convert Blockbalance type object to python dict
                 genesis_block = genesis_doc.to_mongo().to_dict()
                 updated_balances = update_balances(genesis_block['balances'], balance_block)
+                # update genesis block with updated balances, hash, prevhash & number
                 genesis_doc.update(
                     balances=updated_balances,
                     hash=balance_block["hash"],
